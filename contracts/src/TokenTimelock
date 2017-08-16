@@ -17,14 +17,15 @@ contract TokenTimelock {
     // timestamp when token release is enabled
     uint256 public releaseTime;
 
-    function TokenTimelock(ESGToken _token, address _beneficiary, uint256 _years) {
+    function TokenTimelock(ESGToken _token, address _beneficiary) {
         token = _token;
         beneficiary = _beneficiary;
-        releaseTime = now + _years years;
+        releaseTime = now + 2 years;
     }
 
     /* 
-        Show the balance in the timelock
+        Show the balance in the timelock for transparency
+        Therefore transparent view of the whitepaper allotted management tokens
     */
     function lockedBalance() public constant returns (uint256) {
         return token.balanceOf(this);
