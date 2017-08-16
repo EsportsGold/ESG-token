@@ -1,0 +1,1 @@
+[{"constant":false,"inputs":[{"name":"_holder","type":"address"},{"name":"_amount","type":"uint256"}],"name":"burn","outputs":[{"name":"result","type":"bool"}],"payable":false,"type":"function"}]
