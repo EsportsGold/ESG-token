@@ -51,9 +51,9 @@ contract ESGToken is Owned {
     ---------------------------------------------------------------------------------------- */
     function ESGToken() {
         owner = msg.sender;
-        name = "ESG Token 17";
+        name = "ESG Token";
         decimals = 3;
-        symbol = "ESG_TKN_17";
+        symbol = "ESG_TKN";
         
         currentSupply = 0;                      // Starting supply is zero
         supplyCap = 0;                          // Hard cap supply in Tokens set by ICO
