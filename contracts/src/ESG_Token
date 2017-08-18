@@ -9,6 +9,7 @@
             is the FULL DECIMAL value
             The user is only ever presented with the latter option, therefore should avoid
             any confusion.
+
     ---------------------------------------------------------------------------------------- */
 contract ESGToken is Owned {
         
@@ -44,9 +45,8 @@ contract ESGToken is Owned {
             Name:   Esports Gold Token
             Sym:    ESG_TKN
             Dec:    3
-            Cap:    Hard coded cap to ensure excess tokens cannot be minted
-
-    Other parameters have been set up as a separate function to help lower initial gas deployment cost.
+            Cap:    Cap initially set to 0. Set cap function is called by ICO once rates have been
+                    initialised.
 
     ---------------------------------------------------------------------------------------- */
     function ESGToken() {
