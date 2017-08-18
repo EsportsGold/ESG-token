@@ -66,8 +66,9 @@ contract ICOEvent is Owned {
             _cap_rate       Number of tokens (in units, excl token decimals) per 1 ETH contribution
                             from the base target to the ICO cap
             _baseTarget     Number of ETH to reach the base target. ETH is refunded if base target
-                            is not reached
-            _cap            Total ICO cap in ETH. No further ETH can be deposited beyond this
+                            is not reached. Stored in Wei.
+            _cap            Total ICO cap in ETH. No further ETH can be deposited beyond this. Parameter
+                            stored in Wei.
             _holdingAccount Address of the beneficiary account on a successful ICO
             _duration       Duration of ICO in days
     ---------------------------------------------------------------------------------------- */ 
