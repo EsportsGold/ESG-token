@@ -1,3 +1,8 @@
+pragma solidity ^0.4.11;
+
+import './ESGToken.sol';
+
+
     /*  ----------------------------------------------------------------------------------------
 
     Dev:    Vested token option for management - locking in account holders for 2 years
@@ -23,7 +28,7 @@ contract TokenTimelock {
         releaseTime = now + 2 years;
     }
 
-    /* 
+    /*
         Show the balance in the timelock for transparency
         Therefore transparent view of the whitepaper allotted management tokens
     */
@@ -31,7 +36,7 @@ contract TokenTimelock {
         return token.balanceOf(this);
     }
 
-    /* 
+    /*
         Transfers tokens held by timelock to beneficiary
     */
     function release() {

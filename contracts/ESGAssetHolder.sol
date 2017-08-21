@@ -1,3 +1,5 @@
+pragma solidity ^0.4.11;
+
 /*  ----------------------------------------------------------------------------------------
 
     Dev:    ESG Asset Holder is called when the token "burn" function is called
@@ -7,7 +9,7 @@
 
     ---------------------------------------------------------------------------------------- */
 contract ESGAssetHolder {
-    
+
     function burn(address _holder, uint _amount) returns (bool result) {
 
         _holder = 0x0;

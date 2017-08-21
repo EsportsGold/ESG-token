@@ -1,0 +1,492 @@
+{
+  "contract_name": "ICOEvent",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "ICO_Live",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "minWeiContribution",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "minTarget",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "endTime",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "baseTargetReached",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "close",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "closeTransfer",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "capReached",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "ICO_start",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "refund",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "ICO_token_supplyCap",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "minTargetReached",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "startTime",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "totalTokensMinted",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_tokenAddress",
+          "type": "address"
+        },
+        {
+          "name": "_minTarget",
+          "type": "uint256"
+        },
+        {
+          "name": "_target_rate",
+          "type": "uint256"
+        },
+        {
+          "name": "_cap_rate",
+          "type": "uint256"
+        },
+        {
+          "name": "_baseTarget",
+          "type": "uint256"
+        },
+        {
+          "name": "_cap",
+          "type": "uint256"
+        },
+        {
+          "name": "_holdingAccount",
+          "type": "address"
+        },
+        {
+          "name": "_duration",
+          "type": "uint256"
+        }
+      ],
+      "name": "ICO_setParameters",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "enableRefunds",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "rate_toTarget",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "tokensIssued",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "totalWeiContributed",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "baseTarget",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "state",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "deposited",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "rate_toCap",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "closePartial",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "Wei_Remaining_To_ICO_Cap",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "ICO_Ended",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_for",
+          "type": "address"
+        }
+      ],
+      "name": "deposit",
+      "outputs": [],
+      "payable": true,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "icoCapInWei",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "token",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": false,
+      "type": "constructor"
+    },
+    {
+      "payable": true,
+      "type": "fallback"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "purchaser",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "logPurchase",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "purchaser",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "tokensSent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "Closed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "RefundsEnabled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "beneficiary",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "weiAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Refunded",
+      "type": "event"
+    }
+  ],
+  "unlinked_binary": "0x60606040526000600281905560058054600160a060020a0319169055600955662386f26fc10000600a55341561003157fe5b5b5b60008054600160a060020a03191633600160a060020a03161790555b60008054600160a060020a03191633600160a060020a0316178155600e805460ff19166001835b021790555060006006555b5b610ec3806100916000396000f3006060604052361561016f5763ffffffff60e060020a600035041663153913e3811461018157806317dc86c5146101a5578063260840c9146101c75780633197cbb6146101e957806336a1bbfd1461020b57806343d726d61461022f5780634e485c52146102415780634f935945146102535780635133173214610277578063590e1ae31461028957806360aa0e1c1461029b578063684638a9146102ad57806378e97925146102d15780637d549e99146102f357806388be7c41146103155780638c52dc41146103505780638da5cb5b1461036257806397495cce1461038e578063a422b761146103b0578063a5aeb9b7146103de578063afc699b614610400578063c19d93fb14610422578063cb13cddb14610456578063cd09263f14610484578063cda47f3e146104a6578063d13e2a6a146104bb578063dbd848e3146104dd578063f2fde38b14610501578063f340fa011461051f578063f71ad40e14610535578063fc0c546a14610557575b61017f5b61017c33610583565b5b565b005b341561018957fe5b610191610756565b604080519115158252519081900360200190f35b34156101ad57fe5b6101b561078e565b60408051918252519081900360200190f35b34156101cf57fe5b6101b5610794565b60408051918252519081900360200190f35b34156101f157fe5b6101b561079a565b60408051918252519081900360200190f35b341561021357fe5b6101916107a0565b604080519115158252519081900360200190f35b341561023757fe5b61017f6107ac565b005b341561024957fe5b61017f61081f565b005b341561025b57fe5b610191610871565b604080519115158252519081900360200190f35b341561027f57fe5b61017f61087c565b005b341561029157fe5b61017f6108a9565b005b34156102a357fe5b61017f610967565b005b34156102b557fe5b610191610a7b565b604080519115158252519081900360200190f35b34156102d957fe5b6101b5610a87565b60408051918252519081900360200190f35b34156102fb57fe5b6101b5610a8d565b60408051918252519081900360200190f35b341561031d57fe5b61017f600160a060020a036004358116906024359060443590606435906084359060a4359060c4351660e435610a93565b005b341561035857fe5b61017f610b6c565b005b341561036a57fe5b610372610be8565b60408051600160a060020a039092168252519081900360200190f35b341561039657fe5b6101b5610bf7565b60408051918252519081900360200190f35b34156103b857fe5b6101b5600160a060020a0360043516610bfd565b60408051918252519081900360200190f35b34156103e657fe5b6101b5610c0f565b60408051918252519081900360200190f35b341561040857fe5b6101b5610c15565b60408051918252519081900360200190f35b341561042a57fe5b610432610c1b565b6040518082600281111561044257fe5b60ff16815260200191505060405180910390f35b341561045e57fe5b6101b5600160a060020a0360043516610c24565b60408051918252519081900360200190f35b341561048c57fe5b6101b5610c36565b60408051918252519081900360200190f35b34156104ae57fe5b61017f600435610c3c565b005b34156104c357fe5b6101b5610cd9565b60408051918252519081900360200190f35b34156104e557fe5b610191610ce4565b604080519115158252519081900360200190f35b341561050957fe5b61017f600160a060020a0360043516610d06565b005b61017f600160a060020a0360043516610583565b005b341561053d57fe5b6101b5610d42565b60408051918252519081900360200190f35b341561055f57fe5b610372610d48565b60408051600160a060020a039092168252519081900360200190f35b60006000600060006000610595610d57565b15156105a15760006000fd5b60005b600e5460ff1660028111156105b557fe5b146105c05760006000fd5b6105c8610ce4565b156105d35760006000fd5b6105dc34610daa565b94506105e83486610dec565b93506105f660095434610e03565b600955600754610607908690610e2b565b925061061584600854610e2b565b91506106218383610e03565b905061063581670de0b6b3a7640000610e5a565b905061064360065482610e03565b600655600160a060020a0386166000908152600f60205260409020546106699034610e03565b600160a060020a0387166000908152600f60209081526040808320939093556010905220546106989082610e03565b600160a060020a0380881660008181526010602052604080822094909455600154845160e060020a6340c10f19028152600481019390935260248301869052935193909216926340c10f199260448084019391929182900301818387803b15156106fe57fe5b6102c65a03f1151561070c57fe5b5050604080513481529051600160a060020a03891692507fc30df14cb928081d7587d26c00adb1c5483c8049cc0456e2d2e8e226dfb7c9209181900360200190a25b505050505050565b6000600254421015801561076b575060035442105b8015610788575060005b600e5460ff16600281111561078657fe5b145b90505b90565b600a5481565b600b5481565b60035481565b600c5460095410155b90565b60005433600160a060020a039081169116146107c85760006000fd5b60005b600e5460ff1660028111156107dc57fe5b146107e75760006000fd5b600e80546002919060ff19166001835b0217905550604051600080516020610e7883398151915290600090a161017c61081f565b5b5b565b60005433600160a060020a0390811691161461083b5760006000fd5b600554604051600160a060020a039182169130163180156108fc02916000818181858888f19350505050151561017c57fe5b5b5b565b600d54600954145b90565b60005433600160a060020a039081169116146108985760006000fd5b426002819055600454016003555b5b565b600060006108b5610a7b565b156108c05760006000fd5b60015b600e5460ff1660028111156108d457fe5b146108df5760006000fd5b505033600160a060020a0381166000818152600f602052604080822080549083905590519092916108fc841502918491818181858888f19350505050151561092357fe5b604080518281529051600160a060020a038416917fd7dee2702d63ad89917b6a4da9981c90c4d24f8c2bdfd64c604ecae57d8d0651919081900360200190a25b5050565b60008054819081908190819033600160a060020a0390811691161461098c5760006000fd5b61099a600c54600754610e2b565b94506109ae85670de0b6b3a7640000610e5a565b94506109be600d54600c54610dec565b93506109cc84600854610e2b565b93506109e084670de0b6b3a7640000610e5a565b93506109ed85600a610e2b565b92506109fa836064610e5a565b9250610a068486610e03565b9150610a128284610e03565b6001546040805160e060020a63e58cd3cb028152600481018490529051929350600160a060020a039091169163e58cd3cb9160248082019260009290919082900301818387803b1515610a6157fe5b6102c65a03f11515610a6f57fe5b5050505b5b5050505050565b600b5460095410155b90565b60025481565b60065481565b60005433600160a060020a03908116911614610aaf5760006000fd5b600086118015610abf5750600085115b1515610acb5760006000fd5b6000841015610ada5760006000fd5b60008311610ae85760006000fd5b60008111610af65760006000fd5b82871115610b045760006000fd5b600b8790556007869055600885905560018054600160a060020a03808b16600160a060020a031992831617909255670de0b6b3a7640000868102600c558502600d5560058054928516929091169190911790556201518081026004555b5b5050505050505050565b60005433600160a060020a03908116911614610b885760006000fd5b60005b600e5460ff166002811115610b9c57fe5b14610ba75760006000fd5b600e80546001919060ff191682805b02179055506040517f599d8e5a83cffb867d051598c4d70e805d59802d8081c1c7d6dffc5b6aca2b8990600090a15b5b565b600054600160a060020a031681565b60075481565b60106020526000908152604090205481565b60095481565b600c5481565b600e5460ff1681565b600f6020526000908152604090205481565b60085481565b60005433600160a060020a03908116911614610c585760006000fd5b60005b600e5460ff166002811115610c6c57fe5b14610c775760006000fd5b600e80546002919060ff19166001835b0217905550604051600080516020610e7883398151915290600090a1600554604051600160a060020a039091169082156108fc029083906000818181858888f193505050501515610cd457fe5b5b5b50565b600954600d54035b90565b60006000600d5460095410159050600354421180610cff5750805b91505b5090565b60005433600160a060020a03908116911614610d225760006000fd5b60008054600160a060020a031916600160a060020a0383161790555b5b50565b600d5481565b600154600160a060020a031681565b60006000600060006002544210158015610d72575060035442105b925060003410159150600d54610d8a60095434610e03565b11159050828015610d985750815b8015610da15750805b93505b50505090565b600c5460095460009182911015610de157600c5483600954011115610dde57610dd7600c54600954610dec565b9050610de1565b50815b5b8091505b50919050565b600082821115610df857fe5b508082035b92915050565b6000828201838110801590610e185750828110155b1515610e2057fe5b8091505b5092915050565b6000828202831580610e185750828482811515610e4457fe5b04145b1515610e2057fe5b8091505b5092915050565b600060008284811515610e6957fe5b0490508091505b509291505056001cdde67b72a90f19919ac732a437ac2f7a10fc128d28c2a6e525d89ce5cd9d3aa165627a7a723058204afe8aa8c91271c2ed8aad97bb16e450f409f3c3bf6597d5feb9c11e9572e00e0029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1503352591172
+}

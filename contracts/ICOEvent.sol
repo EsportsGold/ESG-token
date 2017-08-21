@@ -1,3 +1,8 @@
+pragma solidity ^0.4.11;
+
+import './Owned.sol';
+import './ESGToken.sol';
+
     /*  ----------------------------------------------------------------------------------------
 
     Dev:    ICO Controller event
@@ -8,7 +13,7 @@
 
     Ref:    Modified version of crowdsale contract with refund option (if base target not reached)
             https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/contracts/crowdsale/Crowdsale.sol
-            https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/contracts/crowdsale/RefundVault.sol           
+            https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/contracts/crowdsale/RefundVault.sol
     ---------------------------------------------------------------------------------------- */
 contract ICOEvent is Owned {
 
@@ -71,7 +76,7 @@ contract ICOEvent is Owned {
                             stored in Wei.
             _holdingAccount Address of the beneficiary account on a successful ICO
             _duration       Duration of ICO in days
-    ---------------------------------------------------------------------------------------- */ 
+    ---------------------------------------------------------------------------------------- */
     function ICO_setParameters(ESGToken _tokenAddress, uint256 _minTarget, uint256 _target_rate, uint256 _cap_rate, uint256 _baseTarget, uint256 _cap, address _holdingAccount, uint256 _duration) onlyOwner {
         require(_target_rate > 0 && _cap_rate > 0);
         require(_baseTarget >= 0);
@@ -93,7 +98,7 @@ contract ICOEvent is Owned {
 
     Dev:    Starts the ICO. Initialises starttime at now - current block timestamp
 
-    ---------------------------------------------------------------------------------------- */ 
+    ---------------------------------------------------------------------------------------- */
     function ICO_start() onlyOwner {
         startTime = now;
         endTime = startTime + duration;
@@ -101,7 +106,7 @@ contract ICOEvent is Owned {
 
     function ICO_token_supplyCap() onlyOwner {
         // Method to calculate number of tokens required to base target
-        uint256 targetTokens = SafeMath.safeMul(baseTarget, rate_toTarget);         
+        uint256 targetTokens = SafeMath.safeMul(baseTarget, rate_toTarget);
         targetTokens = SafeMath.safeDiv(targetTokens, weiEtherConversion);
 
         // Method to calculate number of tokens required between base target and cap
@@ -118,7 +123,7 @@ contract ICOEvent is Owned {
         mmentTokens = SafeMath.safeDiv(mmentTokens, 100);
 
         // Total supply for the ICO will be available tokens + m'ment reserve
-        uint256 tokens_available = SafeMath.safeAdd(capTokens, targetTokens); 
+        uint256 tokens_available = SafeMath.safeAdd(capTokens, targetTokens);
 
         uint256 total_Token_Supply = SafeMath.safeAdd(tokens_available, mmentTokens); // Tokens in UNITS
 
@@ -151,18 +156,18 @@ contract ICOEvent is Owned {
                 Calls the token mint function in the ESGToken contract
 
     param: _for     Address of the sender for tokens
-            
+
     ---------------------------------------------------------------------------------------- */
     function deposit(address _for) payable {
 
-        /* 
+        /*
             Checks to ensure purchase is valid. A purchase that breaches the cap is not allowed
         */
         require(validPurchase());           // Checks time, value purchase is within Cap and address != 0x0
         require(state == State.Active);     // IE not in refund or closed
         require(!ICO_Ended());              // Checks time closed or cap reached
 
-        /* 
+        /*
             Calculates if any of the value falls before the base target so that the correct
             Token : ETH rate can be applied to the value transferred
         */
@@ -170,14 +175,14 @@ contract ICOEvent is Owned {
         uint256 capContribution = SafeMath.safeSub(msg.value, targetContribution);      // Contribution above base target
         totalWeiContributed = SafeMath.safeAdd(totalWeiContributed, msg.value);         // Update total contribution
 
-        /* 
+        /*
             Calculate total tokens earned by rate * contribution (in Wei)
             Multiplication first ensures that dividing back doesn't truncate/round
         */
         uint256 targetTokensToMint = SafeMath.safeMul(targetContribution, rate_toTarget);   // Discount rate tokens
         uint256 capTokensToMint = SafeMath.safeMul(capContribution, rate_toCap);            // Standard rate tokens
         uint256 tokensToMint = SafeMath.safeAdd(targetTokensToMint, capTokensToMint);       // Total tokens
-        
+
         tokensToMint = SafeMath.safeDiv(tokensToMint, weiEtherConversion);                  // Get tokens in units
         totalTokensMinted = SafeMath.safeAdd(totalTokensMinted, tokensToMint);              // Update total tokens minted
 
@@ -196,20 +201,20 @@ contract ICOEvent is Owned {
     param:      _valueSent  The value of ETH transferred on the payable function
 
     returns:    uint256     The value that falls before the base target
-            
+
     ---------------------------------------------------------------------------------------- */
     function getPreTargetContribution(uint256 _valueSent) internal returns (uint256) {
-        
+
         uint256 targetContribution = 0;                                                     // Default return
 
-        if (totalWeiContributed < baseTarget) {                                             
+        if (totalWeiContributed < baseTarget) {
             if (totalWeiContributed + _valueSent > baseTarget) {                            // Contribution straddles baseTarget
                 targetContribution = SafeMath.safeSub(baseTarget, totalWeiContributed);     // IF #1 means always +ve
             } else {
                 targetContribution = _valueSent;
             }
         }
-        return targetContribution;    
+        return targetContribution;
     }
 
     /*  ----------------------------------------------------------------------------------------
@@ -225,7 +230,7 @@ contract ICOEvent is Owned {
 
     // Time is valid, purchase isn't zero and cap won't be breached
     function validPurchase() internal constant returns (bool) {         // Known true
-        bool validTime = (now >= startTime && now < endTime);           // Must be true    
+        bool validTime = (now >= startTime && now < endTime);           // Must be true
         bool nonZeroAmount = (msg.value >= 0);
         bool withinCap = SafeMath.safeAdd(totalWeiContributed, msg.value) <= icoCapInWei;
 
@@ -246,19 +251,19 @@ contract ICOEvent is Owned {
 
     // Shows if the base target cap has been reached
     function minTargetReached() public constant returns (bool) {
-    
+
         return totalWeiContributed >= minTarget;
     }
 
     // Shows if the base target cap has been reached
     function baseTargetReached() public constant returns (bool) {
-    
+
         return totalWeiContributed >= baseTarget;
     }
 
     // Shows if the cap has been reached
     function capReached() public constant returns (bool) {
-    
+
         return totalWeiContributed == icoCapInWei;
     }
 
@@ -302,7 +307,7 @@ contract ICOEvent is Owned {
 
     Dev:    Owner can trigger the refund state in the ICO Controller. This will then stop any
             further deposits being taken.
-            
+
     ---------------------------------------------------------------------------------------- */
     function enableRefunds() onlyOwner {
         require(state == State.Active);
@@ -316,7 +321,7 @@ contract ICOEvent is Owned {
             refund claim
 
     Req:    Refunds can only be triggered if the base target is not reached
-            
+
     ---------------------------------------------------------------------------------------- */
     function refund() {
         require(!minTargetReached());                           // Base target not reached
@@ -329,4 +334,4 @@ contract ICOEvent is Owned {
         refundAccount.transfer(depositedValue);
         Refunded(refundAccount, depositedValue);
     }
-} 
+}
