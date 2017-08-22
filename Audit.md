@@ -18,7 +18,7 @@ and was taken as of commit:
 * **Major** - A defect that impacts the desired outcome of the contract execution or introduces a weakness that may be exploited.
 * **Critical** - A defect that presents a significant security vulnerability or failure of the contract across a range of scenarios.
 
-## Preparing Files For Audit
+## Preparing Files For Audit
 
 In order to ensure .sol files compiled, and to normalise their structure, I took a fork from the above commit and modified the structure of the files as follows.
 
@@ -73,7 +73,7 @@ On [line 25](https://github.com/adamdossa/ESG-token/blob/master/contracts/ESGTok
 
 **Minor**
 
-On [line 62](https://github.com/adamdossa/ESG-token/blob/master/contracts/ESGToken.sol#L62) the token symbol should follow the convention of only capital letters, e.g. ESG or ESGToken
+On [line 62](https://github.com/adamdossa/ESG-token/blob/master/contracts/ESGToken.sol#L62) the token symbol should follow the convention of only capital letters, e.g. ESG or ESGT
 
 **Minor**
 
@@ -91,7 +91,7 @@ It is possible that the controller address is not set (so has the default value 
 
 #### Summary
 
-There are some Major issues as identified below, which would allow the contract to enter an unexpected state and potentially lock Ether in the contract. If the intention is to not make sure of the minimum cap / refund functionality, my suggestion would be to remove this from the code to reduce complexity and address these issues.
+There are some Critical and Major issues as identified below, which could allow the contract to enter an unexpected state and potentially lock Ether in the contract. If the intention is to not make sure of the minimum cap / refund functionality, my suggestion would be to remove this from the code to reduce complexity and address these issues.
 
 #### Issues
 
@@ -111,7 +111,7 @@ On [line 59](https://github.com/adamdossa/ESG-token/blob/master/contracts/ICOEve
 
 On [line 80](https://github.com/adamdossa/ESG-token/blob/master/contracts/ICOEvent.sol#L80) the type of `_tokenAddress` should be address not ESGToken.
 
-**Moderate**
+**Major**
 
 In the function `ICO_setParameters` there seems to be a mismatch between the units used for `_cap` and `_minTarget`. `_minTarget` is multiplied by `weiEtherConversion` whereas `_minTarget` is not. I would strongly suggest standardising on the units used (i.e. Wei or Ether) for clarity here. This would involve multiplying `_minTarget` by `weiEtherConversion` in [line 87](https://github.com/adamdossa/ESG-token/blob/master/contracts/ICOEvent.sol#L89).
 
@@ -162,7 +162,7 @@ Without this it is possible for the owner to set the state of the contract to `S
 
 It would be possible for the owner to use the function `closeTransfer` as it currently stands, but as per issue above this function should be modified.
 
-**Moderate**
+**Major**
 
 The functions `close` and `closePartial` should only be callable if the minimum cap has been met. Otherwise it is possible for the owner to drain the balance of the contract into the holdingAccount even though the minimum cap has not been met.
 
