@@ -1,0 +1,31 @@
+{
+  "contract_name": "ESGAssetHolder",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_holder",
+          "type": "address"
+        },
+        {
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "burn",
+      "outputs": [
+        {
+          "name": "result",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "unlinked_binary": "0x6060604052341561000f57600080fd5b5b60b68061001e6000396000f300606060405263ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416639dc29fac8114603c575b600080fd5b3415604657600080fd5b606873ffffffffffffffffffffffffffffffffffffffff60043516602435607c565b604051901515815260200160405180910390f35b506000905080805b929150505600a165627a7a7230582041c95338b3b74c7b29dcad939f8313eeb2ddf85bf230d37baa2e572bef3c24870029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1504582889785
+}
