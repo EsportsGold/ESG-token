@@ -6,9 +6,10 @@ var Timelock = artifacts.require("./TokenTimelock.sol");
 var ICOEvent = artifacts.require("./ICOEvent.sol");
 
 module.exports = async (deployer) => {
-  var beneficiaryAddr = "0x2caab4034d976b5748d6e1c6dd3fd999da693713";
-  var holdingAddr = "0x36AfFc5d3D02173559aa4ce90dab2EF4A7E77DFD";
+  var beneficiaryAddr = "0x2caab4034d976b5748d6e1c6dd3fd999da693713"; // Testing address
+  var holdingAddr = "0x36AfFc5d3D02173559aa4ce90dab2EF4A7E77DFD";     // Testing address
 
+  // Deployment parameters based on a scenario with ETH priced at 290
   deployer.deploy(Owner);
   deployer.deploy(Maths);
   deployer.link(Maths, [Token, ICOEvent]);
