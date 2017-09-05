@@ -1,3 +1,6 @@
+pragma solidity >=0.4.10;
+import "./ESGToken.sol";
+
     /*  ----------------------------------------------------------------------------------------
 
     Dev:    Vested token option for management - locking in account holders for 2 years
@@ -17,8 +20,12 @@ contract TokenTimelock {
     // timestamp when token release is enabled
     uint256 public releaseTime;
 
-    function TokenTimelock(ESGToken _token, address _beneficiary) {
-        token = _token;
+    function TokenTimelock(address _token, address _beneficiary) {
+        require(_token != 0x0);
+        require(_beneficiary != 0x0);
+
+        token = ESGToken(_token);
+        //token = _token;
         beneficiary = _beneficiary;
         releaseTime = now + 2 years;
     }
