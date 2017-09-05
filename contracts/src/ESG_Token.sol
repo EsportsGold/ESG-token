@@ -1,3 +1,9 @@
+pragma solidity >=0.4.10;
+import "./SafeMath.sol";
+import "./Owned.sol";
+import "./ESGAssetHolder.sol";
+
+
 /*  ----------------------------------------------------------------------------------------
 
     Dev:    The Esports Gold Token:  ERC20 standard token with MINT and BURN functions
@@ -9,24 +15,25 @@
             is the FULL DECIMAL value
             The user is only ever presented with the latter option, therefore should avoid
             any confusion.
-
     ---------------------------------------------------------------------------------------- */
 contract ESGToken is Owned {
         
-    string public name;                     // Name of token
-    string public symbol;                   // Token symbol
-    uint256 public decimals;                // Decimals for the token
-    uint256 public currentSupply;           // Current supply of tokens
-    uint256 public supplyCap;               // Hard cap on supply of tokens
-    address public ICOcontroller;           // Controlling contract from ICO
-
+    string public name = "ESG Token";               // Name of token
+    string public symbol = "ESG";                   // Token symbol
+    uint256 public decimals = 3;                    // Decimals for the token
+    uint256 public currentSupply;                   // Current supply of tokens
+    uint256 public supplyCap;                       // Hard cap on supply of tokens
+    address public ICOcontroller;                   // Controlling contract from ICO
+    address public timelockTokens;                  // Address for locked management tokens
+    bool public tokenParametersSet;                        // Ensure that parameters required are set
+    bool public controllerSet;                             // Ensure that ICO controller is set
 
     mapping (address => uint256) public balanceOf;                      // Balances of addresses
     mapping (address => mapping (address => uint)) public allowance;    // Allowances from addresses
     mapping (address => bool) public frozenAccount;                     // Safety mechanism
 
 
-    modifier onlyControllers() {            // Ensures that only contracts can manage key functions
+    modifier onlyControllerOrOwner() {            // Ensures that only contracts can manage key functions
         require(msg.sender == ICOcontroller || msg.sender == owner);
         _;
     }
@@ -45,18 +52,16 @@ contract ESGToken is Owned {
             Name:   Esports Gold Token
             Sym:    ESG_TKN
             Dec:    3
-            Cap:    Cap initially set to 0. Set cap function is called by ICO once rates have been
-                    initialised.
+            Cap:    Hard coded cap to ensure excess tokens cannot be minted
+
+    Other parameters have been set up as a separate function to help lower initial gas deployment cost.
 
     ---------------------------------------------------------------------------------------- */
     function ESGToken() {
-        owner = msg.sender;
-        name = "ESG Token";
-        decimals = 3;
-        symbol = "ESG_TKN";
-        
         currentSupply = 0;                      // Starting supply is zero
         supplyCap = 0;                          // Hard cap supply in Tokens set by ICO
+        tokenParametersSet = false;             // Ensure parameters are set
+        controllerSet = false;                  // Ensure controller is set
     }
 
     /*  ----------------------------------------------------------------------------------------
@@ -69,8 +74,28 @@ contract ESGToken is Owned {
     ---------------------------------------------------------------------------------------- */
     function setICOController(address _ico) onlyOwner {     // ICO event address is locked in
         require(_ico != 0x0);
-
         ICOcontroller = _ico;
+        controllerSet = true;
+    }
+
+
+    /*  ----------------------------------------------------------------------------------------
+    NEW
+    Dev:    Address for the timelock tokens to be held
+
+    Param:  _timelockAddr   Address of the timelock contract that will hold the locked tokens
+    
+    ---------------------------------------------------------------------------------------- */
+    function setParameters(address _timelockAddr) onlyOwner {
+        require(_timelockAddr != 0x0);
+
+        timelockTokens = _timelockAddr;
+
+        tokenParametersSet = true;
+    }
+
+    function parametersAreSet() constant returns (bool) {
+        return tokenParametersSet && controllerSet;
     }
 
     /*  ----------------------------------------------------------------------------------------
@@ -79,12 +104,26 @@ contract ESGToken is Owned {
 
     Param:  _supplyCap  The number of tokens (in whole units) that can be minted. This number then
                         gets increased by the decimal number
-    
+   
     ---------------------------------------------------------------------------------------- */
-    function setTokenCapInUnits(uint256 _supplyCap) onlyControllers {   // Supply cap in UNITS
+    function setTokenCapInUnits(uint256 _supplyCap) onlyControllerOrOwner {   // Supply cap in UNITS
         assert(_supplyCap > 0);
         
-        supplyCap = _supplyCap * (10**decimals);
+        supplyCap = SafeMath.safeMul(_supplyCap, (10**decimals));
+    }
+
+    /*  ----------------------------------------------------------------------------------------
+
+    Dev:    Mint the number of tokens for the timelock contract
+
+    Param:  _mMentTkns  Number of tokens in whole units that need to be locked into the Timelock
+    
+    ---------------------------------------------------------------------------------------- */
+    function mintLockedTokens(uint256 _mMentTkns) onlyControllerOrOwner {
+        assert(_mMentTkns > 0);
+        assert(tokenParametersSet);
+
+        mint(timelockTokens, _mMentTkns);  
     }
 
     /*  ----------------------------------------------------------------------------------------
@@ -110,9 +149,9 @@ contract ESGToken is Owned {
                         Minimum ETH contribution in ICO event is 0.01ETH at 100 tokens per ETH
     
     ---------------------------------------------------------------------------------------- */
-    function mint(address _address, uint _amount) onlyControllers {
-
-        uint256 amount = _amount * (10**decimals);             // Tokens minted using unit parameter supplied
+    function mint(address _address, uint _amount) onlyControllerOrOwner {
+        require(_address != 0x0);
+        uint256 amount = SafeMath.safeMul(_amount, (10**decimals));             // Tokens minted using unit parameter supplied
 
         // Ensure that supplyCap is set and that new tokens don't breach cap
         assert(supplyCap > 0 && amount > 0 && SafeMath.safeAdd(currentSupply, amount) <= supplyCap);
@@ -211,7 +250,6 @@ contract ESGToken is Owned {
 
     Param:  _owner          Address of the authoriser who owns the tokens
             _spender        Address of sender who will be authorised to spend the tokens
-            _value          The number of tokens (full decimals) that are approved
 
     ---------------------------------------------------------------------------------------- */
 
