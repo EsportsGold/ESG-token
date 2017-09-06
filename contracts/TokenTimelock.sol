@@ -1,7 +1,5 @@
-pragma solidity ^0.4.11;
-
-import './ESGToken.sol';
-
+pragma solidity >=0.4.10;
+import "./ESG_Token.sol";
 
     /*  ----------------------------------------------------------------------------------------
 
@@ -22,8 +20,12 @@ contract TokenTimelock {
     // timestamp when token release is enabled
     uint256 public releaseTime;
 
-    function TokenTimelock(ESGToken _token, address _beneficiary) {
-        token = _token;
+    function TokenTimelock(address _token, address _beneficiary) {
+        require(_token != 0x0);
+        require(_beneficiary != 0x0);
+
+        token = ESGToken(_token);
+        //token = _token;
         beneficiary = _beneficiary;
         releaseTime = now + 2 years;
     }

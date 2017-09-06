@@ -1,38 +1,39 @@
-pragma solidity ^0.4.11;
+pragma solidity >=0.4.10;
+import "./SafeMath.sol";
+import "./Owned.sol";
+import "./ESGAssetHolder.sol";
 
-import './Owned.sol';
-import './ESGAssetHolder.sol';
-import './SafeMath.sol';
 
 /*  ----------------------------------------------------------------------------------------
 
     Dev:    The Esports Gold Token:  ERC20 standard token with MINT and BURN functions
 
-    Func:   Mint, Approve, Transfer, TransferFrom
+    Func:   Mint, Approve, Transfer, TransferFrom  
 
     Note:   Mint function takes UNITS of tokens to mint as ICO event is set to have a minimum
             contribution of 1 token. All other functions (transfer etc), the value to transfer
             is the FULL DECIMAL value
             The user is only ever presented with the latter option, therefore should avoid
             any confusion.
-
     ---------------------------------------------------------------------------------------- */
 contract ESGToken is Owned {
-
-    string public name;                     // Name of token
-    string public symbol;                   // Token symbol
-    uint256 public decimals;                // Decimals for the token
-    uint256 public currentSupply;           // Current supply of tokens
-    uint256 public supplyCap;               // Hard cap on supply of tokens
-    address public ICOcontroller;           // Controlling contract from ICO
-
+        
+    string public name = "ESG Token";               // Name of token
+    string public symbol = "ESG";                   // Token symbol
+    uint256 public decimals = 3;                    // Decimals for the token
+    uint256 public currentSupply;                   // Current supply of tokens
+    uint256 public supplyCap;                       // Hard cap on supply of tokens
+    address public ICOcontroller;                   // Controlling contract from ICO
+    address public timelockTokens;                  // Address for locked management tokens
+    bool public tokenParametersSet;                        // Ensure that parameters required are set
+    bool public controllerSet;                             // Ensure that ICO controller is set
 
     mapping (address => uint256) public balanceOf;                      // Balances of addresses
     mapping (address => mapping (address => uint)) public allowance;    // Allowances from addresses
     mapping (address => bool) public frozenAccount;                     // Safety mechanism
 
 
-    modifier onlyControllers() {            // Ensures that only contracts can manage key functions
+    modifier onlyControllerOrOwner() {            // Ensures that only contracts can manage key functions
         require(msg.sender == ICOcontroller || msg.sender == owner);
         _;
     }
@@ -42,7 +43,7 @@ contract ESGToken is Owned {
     event Mint(address owner, uint amount);
     event FrozenFunds(address target, bool frozen);
     event Burn(address coinholder, uint amount);
-
+    
     /*  ----------------------------------------------------------------------------------------
 
     Dev:    Constructor
@@ -51,18 +52,16 @@ contract ESGToken is Owned {
             Name:   Esports Gold Token
             Sym:    ESG_TKN
             Dec:    3
-            Cap:    Cap initially set to 0. Set cap function is called by ICO once rates have been
-                    initialised.
+            Cap:    Hard coded cap to ensure excess tokens cannot be minted
+
+    Other parameters have been set up as a separate function to help lower initial gas deployment cost.
 
     ---------------------------------------------------------------------------------------- */
     function ESGToken() {
-        owner = msg.sender;
-        name = "ESG Token";
-        decimals = 3;
-        symbol = "ESG_TKN";
-
         currentSupply = 0;                      // Starting supply is zero
         supplyCap = 0;                          // Hard cap supply in Tokens set by ICO
+        tokenParametersSet = false;             // Ensure parameters are set
+        controllerSet = false;                  // Ensure controller is set
     }
 
     /*  ----------------------------------------------------------------------------------------
@@ -71,12 +70,32 @@ contract ESGToken is Owned {
 
     Param:  _ico    Address of the ICO Event contract to ensure the ICO event can control
                     the minting function
-
+    
     ---------------------------------------------------------------------------------------- */
     function setICOController(address _ico) onlyOwner {     // ICO event address is locked in
         require(_ico != 0x0);
-
         ICOcontroller = _ico;
+        controllerSet = true;
+    }
+
+
+    /*  ----------------------------------------------------------------------------------------
+    NEW
+    Dev:    Address for the timelock tokens to be held
+
+    Param:  _timelockAddr   Address of the timelock contract that will hold the locked tokens
+    
+    ---------------------------------------------------------------------------------------- */
+    function setParameters(address _timelockAddr) onlyOwner {
+        require(_timelockAddr != 0x0);
+
+        timelockTokens = _timelockAddr;
+
+        tokenParametersSet = true;
+    }
+
+    function parametersAreSet() constant returns (bool) {
+        return tokenParametersSet && controllerSet;
     }
 
     /*  ----------------------------------------------------------------------------------------
@@ -85,12 +104,26 @@ contract ESGToken is Owned {
 
     Param:  _supplyCap  The number of tokens (in whole units) that can be minted. This number then
                         gets increased by the decimal number
-
+   
     ---------------------------------------------------------------------------------------- */
-    function setTokenCapInUnits(uint256 _supplyCap) onlyControllers {   // Supply cap in UNITS
+    function setTokenCapInUnits(uint256 _supplyCap) onlyControllerOrOwner {   // Supply cap in UNITS
         assert(_supplyCap > 0);
+        
+        supplyCap = SafeMath.safeMul(_supplyCap, (10**decimals));
+    }
 
-        supplyCap = _supplyCap * (10**decimals);
+    /*  ----------------------------------------------------------------------------------------
+
+    Dev:    Mint the number of tokens for the timelock contract
+
+    Param:  _mMentTkns  Number of tokens in whole units that need to be locked into the Timelock
+    
+    ---------------------------------------------------------------------------------------- */
+    function mintLockedTokens(uint256 _mMentTkns) onlyControllerOrOwner {
+        assert(_mMentTkns > 0);
+        assert(tokenParametersSet);
+
+        mint(timelockTokens, _mMentTkns);  
     }
 
     /*  ----------------------------------------------------------------------------------------
@@ -98,7 +131,7 @@ contract ESGToken is Owned {
     Dev:    Gets the balance of the address owner
 
     Param:  _owner  Address of the owner querying their balance
-
+    
     ---------------------------------------------------------------------------------------- */
     function balanceOf(address _owner) constant returns (uint256 balance) {
         return balanceOf[_owner];
@@ -114,44 +147,44 @@ contract ESGToken is Owned {
     Param:  Address     Address for tokens to be minted to
             Amount      Number of tokens to be minted (in whole UNITS. Min minting is 1 token)
                         Minimum ETH contribution in ICO event is 0.01ETH at 100 tokens per ETH
-
+    
     ---------------------------------------------------------------------------------------- */
-    function mint(address _address, uint _amount) onlyControllers {
-
-        uint256 amount = _amount * (10**decimals);             // Tokens minted using unit parameter supplied
+    function mint(address _address, uint _amount) onlyControllerOrOwner {
+        require(_address != 0x0);
+        uint256 amount = SafeMath.safeMul(_amount, (10**decimals));             // Tokens minted using unit parameter supplied
 
         // Ensure that supplyCap is set and that new tokens don't breach cap
         assert(supplyCap > 0 && amount > 0 && SafeMath.safeAdd(currentSupply, amount) <= supplyCap);
-
+        
         balanceOf[_address] = SafeMath.safeAdd(balanceOf[_address], amount);    // Add tokens to address
         currentSupply = SafeMath.safeAdd(currentSupply, amount);                // Add to supply
-
+        
         Mint(_address, amount);
     }
-
+    
     /*  ----------------------------------------------------------------------------------------
 
     Dev:    ERC20 standard transfer function
 
     Param:  _to         Address to send to
             _value      Number of tokens to be sent - in FULL decimal length
-
+    
     Ref:    https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/contracts/token/BasicToken.sol
     ---------------------------------------------------------------------------------------- */
     function transfer(address _to, uint _value) returns (bool success) {
         require(!frozenAccount[msg.sender]);        // Ensure account is not frozen
 
-        /*
+        /* 
             Update balances from "from" and "to" addresses with the tokens transferred
             safeSub method ensures that address sender has enough tokens to send
         */
-        balanceOf[msg.sender] = SafeMath.safeSub(balanceOf[msg.sender], _value);
-        balanceOf[_to] = SafeMath.safeAdd(balanceOf[_to], _value);
+        balanceOf[msg.sender] = SafeMath.safeSub(balanceOf[msg.sender], _value);    
+        balanceOf[_to] = SafeMath.safeAdd(balanceOf[_to], _value);                  
         Transfer(msg.sender, _to, _value);
-
+        
         return true;
     }
-
+    
     /*  ----------------------------------------------------------------------------------------
 
     Dev:    ERC20 standard transferFrom function
@@ -161,21 +194,21 @@ contract ESGToken is Owned {
             Amount      Number of tokens to be sent - in FULL decimal length
 
     ---------------------------------------------------------------------------------------- */
-    function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
+    function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {   
         require(!frozenAccount[_from]);                         // Check account is not frozen
-
-        /*
+        
+        /* 
             Ensure sender has been authorised to send the required number of tokens
         */
         if (allowance[_from][msg.sender] < _value)
             return false;
 
-        /*
+        /* 
             Update allowance of sender to reflect tokens sent
         */
-        allowance[_from][msg.sender] = SafeMath.safeSub(allowance[_from][msg.sender], _value);
+        allowance[_from][msg.sender] = SafeMath.safeSub(allowance[_from][msg.sender], _value); 
 
-        /*
+        /* 
             Update balances from "from" and "to" addresses with the tokens transferred
             safeSub method ensures that address sender has enough tokens to send
         */
@@ -185,7 +218,7 @@ contract ESGToken is Owned {
         Transfer(_from, _to, _value);
         return true;
     }
-
+    
     /*  ----------------------------------------------------------------------------------------
 
     Dev:    ERC20 standard approve function
@@ -205,7 +238,7 @@ contract ESGToken is Owned {
         }
 
         allowance[msg.sender][_spender] = _value;
-
+        
         Approval(msg.sender, _spender, _value);
         return true;
     }
@@ -217,14 +250,13 @@ contract ESGToken is Owned {
 
     Param:  _owner          Address of the authoriser who owns the tokens
             _spender        Address of sender who will be authorised to spend the tokens
-            _value          The number of tokens (full decimals) that are approved
 
     ---------------------------------------------------------------------------------------- */
 
     function allowance(address _owner, address _spender) constant returns (uint256 remaining) {
         return allowance[_owner][_spender];
     }
-
+    
     /*  ----------------------------------------------------------------------------------------
 
     Dev:    As ESG is aiming to be a regulated betting operator. Regulatory hurdles may require
@@ -262,7 +294,7 @@ contract ESGToken is Owned {
         if (_amount > balanceOf[msg.sender])
             return false;       // If owner has enough to burn
 
-        /*
+        /* 
             Remove tokens from circulation
             Update sender's balance of tokens
         */
@@ -299,5 +331,5 @@ contract ESGToken is Owned {
     function setAssetHolder(address _assetAdress) onlyOwner {   // Used to lock in the Asset Contract
         assert(!lockedAssetHolder);             // Check that we haven't locked the asset holder yet
         esgAssetHolder = ESGAssetHolder(_assetAdress);
-    }
+    }    
 }

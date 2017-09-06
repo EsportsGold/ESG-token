@@ -1,7 +1,7 @@
-pragma solidity ^0.4.11;
-
-import './Owned.sol';
-import './ESGToken.sol';
+pragma solidity >=0.4.10;
+import "./SafeMath.sol";
+import "./Owned.sol";
+import "./ESG_Token.sol";
 
     /*  ----------------------------------------------------------------------------------------
 
@@ -22,6 +22,8 @@ contract ICOEvent is Owned {
     uint256 public startTime = 0;                       // StartTime default
     uint256 public endTime;                             // End time is start + duration
     uint256 duration;                                   // Duration in days for ICO
+    bool parametersSet;                                 // Ensure paramaters are locked in before starting ICO
+    bool supplySet;                                     // Ensure token supply set
 
     address holdingAccount = 0x0;                       // Address for successful closing of ICO
     uint256 public totalTokensMinted;                   // To record total number of tokens minted
@@ -34,12 +36,10 @@ contract ICOEvent is Owned {
     uint256 constant weiEtherConversion = 10**18;       // To allow inputs for setup in ETH for simplicity
 
     // Cap parameters
-    uint256 public minTarget;                           // Option for minimum amount of funds to be raised
-    uint256 public baseTarget;                          // Target for bonus rate of tokens
+    uint256 public baseTargetInWei;                     // Target for bonus rate of tokens
     uint256 public icoCapInWei;                         // Max cap of the ICO in Wei
 
     event logPurchase (address indexed purchaser, uint value);
-    event tokensSent (address indexed purchaser, uint value);
 
     enum State { Active, Refunding, Closed }            // Allows control of the ICO state
     State public state;
@@ -51,14 +51,14 @@ contract ICOEvent is Owned {
     Dev:    Constructor
 
     param:  Parameters are set individually after construction to lower initial deployment gas
-            Owner:  sender
             State:  set default state to active
 
     ---------------------------------------------------------------------------------------- */
     function ICOEvent() {
-        owner = msg.sender;
         state = State.Active;
         totalTokensMinted = 0;
+        parametersSet = false;
+        supplySet = false;
     }
 
     /*  ----------------------------------------------------------------------------------------
@@ -71,27 +71,36 @@ contract ICOEvent is Owned {
             _cap_rate       Number of tokens (in units, excl token decimals) per 1 ETH contribution
                             from the base target to the ICO cap
             _baseTarget     Number of ETH to reach the base target. ETH is refunded if base target
-                            is not reached. Stored in Wei.
-            _cap            Total ICO cap in ETH. No further ETH can be deposited beyond this. Parameter
-                            stored in Wei.
+                            is not reached
+            _cap            Total ICO cap in ETH. No further ETH can be deposited beyond this
             _holdingAccount Address of the beneficiary account on a successful ICO
             _duration       Duration of ICO in days
     ---------------------------------------------------------------------------------------- */
-    function ICO_setParameters(ESGToken _tokenAddress, uint256 _minTarget, uint256 _target_rate, uint256 _cap_rate, uint256 _baseTarget, uint256 _cap, address _holdingAccount, uint256 _duration) onlyOwner {
+    function ICO_setParameters(address _tokenAddress, uint256 _target_rate, uint256 _cap_rate, uint256 _baseTarget, uint256 _cap, address _holdingAccount, uint256 _duration) onlyOwner {
         require(_target_rate > 0 && _cap_rate > 0);
         require(_baseTarget >= 0);
         require(_cap > 0);
         require(_duration > 0);
-        require(_minTarget <= _cap);
+        require(_holdingAccount != 0x0);
+        require(_tokenAddress != 0x0);
 
-        minTarget = _minTarget;
         rate_toTarget = _target_rate;
         rate_toCap = _cap_rate;
         token = ESGToken(_tokenAddress);
-        baseTarget = _baseTarget * weiEtherConversion;
-        icoCapInWei = _cap * weiEtherConversion;
+        baseTargetInWei = SafeMath.safeMul(_baseTarget, weiEtherConversion);
+        icoCapInWei = SafeMath.safeMul(_cap, weiEtherConversion);
         holdingAccount = _holdingAccount;
         duration = _duration * 1 days;
+        parametersSet = true;
+    }
+
+    /*  ----------------------------------------------------------------------------------------
+
+    Dev:    Ensure the ICO parameters are set before initialising start of ICO
+
+    ---------------------------------------------------------------------------------------- */
+    function eventConfigured() internal constant returns (bool) {
+        return parametersSet && supplySet;
     }
 
     /*  ----------------------------------------------------------------------------------------
@@ -100,17 +109,20 @@ contract ICOEvent is Owned {
 
     ---------------------------------------------------------------------------------------- */
     function ICO_start() onlyOwner {
+        assert (eventConfigured());
         startTime = now;
-        endTime = startTime + duration;
+        endTime = SafeMath.safeAdd(startTime, duration);
     }
 
     function ICO_token_supplyCap() onlyOwner {
+        require(token.parametersAreSet());                          // Ensure parameters are set in the token
+
         // Method to calculate number of tokens required to base target
-        uint256 targetTokens = SafeMath.safeMul(baseTarget, rate_toTarget);
+        uint256 targetTokens = SafeMath.safeMul(baseTargetInWei, rate_toTarget);
         targetTokens = SafeMath.safeDiv(targetTokens, weiEtherConversion);
 
         // Method to calculate number of tokens required between base target and cap
-        uint256 capTokens = SafeMath.safeSub(icoCapInWei, baseTarget);
+        uint256 capTokens = SafeMath.safeSub(icoCapInWei, baseTargetInWei);
         capTokens = SafeMath.safeMul(capTokens, rate_toCap);
         capTokens = SafeMath.safeDiv(capTokens, weiEtherConversion);
 
@@ -127,7 +139,9 @@ contract ICOEvent is Owned {
 
         uint256 total_Token_Supply = SafeMath.safeAdd(tokens_available, mmentTokens); // Tokens in UNITS
 
-        token.setTokenCapInUnits(total_Token_Supply);
+        token.setTokenCapInUnits(total_Token_Supply);          // Set supply cap and mint to timelock
+        token.mintLockedTokens(mmentTokens);                   // Lock in the timelock tokens
+        supplySet = true;
     }
 
     /*  ----------------------------------------------------------------------------------------
@@ -163,7 +177,7 @@ contract ICOEvent is Owned {
         /*
             Checks to ensure purchase is valid. A purchase that breaches the cap is not allowed
         */
-        require(validPurchase());           // Checks time, value purchase is within Cap and address != 0x0
+        require(validPurchase(msg.value));           // Checks time, value purchase is within Cap and address != 0x0
         require(state == State.Active);     // IE not in refund or closed
         require(!ICO_Ended());              // Checks time closed or cap reached
 
@@ -207,9 +221,9 @@ contract ICOEvent is Owned {
 
         uint256 targetContribution = 0;                                                     // Default return
 
-        if (totalWeiContributed < baseTarget) {
-            if (totalWeiContributed + _valueSent > baseTarget) {                            // Contribution straddles baseTarget
-                targetContribution = SafeMath.safeSub(baseTarget, totalWeiContributed);     // IF #1 means always +ve
+        if (totalWeiContributed < baseTargetInWei) {
+            if (SafeMath.safeAdd(totalWeiContributed, _valueSent) > baseTargetInWei) {           // Contribution straddles baseTarget
+                targetContribution = SafeMath.safeSub(baseTargetInWei, totalWeiContributed);     // IF #1 means always +ve
             } else {
                 targetContribution = _valueSent;
             }
@@ -229,19 +243,20 @@ contract ICOEvent is Owned {
     }
 
     // Time is valid, purchase isn't zero and cap won't be breached
-    function validPurchase() internal constant returns (bool) {         // Known true
+    function validPurchase(uint256 _value) payable returns (bool) {          // Known true
         bool validTime = (now >= startTime && now < endTime);           // Must be true
-        bool nonZeroAmount = (msg.value >= 0);
-        bool withinCap = SafeMath.safeAdd(totalWeiContributed, msg.value) <= icoCapInWei;
+        bool validAmount = (_value >= minWeiContribution);
+        bool withinCap = SafeMath.safeAdd(totalWeiContributed, _value) <= icoCapInWei;
 
-        return validTime && nonZeroAmount && withinCap;
+        return validTime && validAmount && withinCap;
     }
 
     // ICO has ended
     function ICO_Ended() public constant returns (bool) {
         bool capReached = (totalWeiContributed >= icoCapInWei);
+        bool stateValid = state == State.Closed;
 
-        return (now > endTime) || capReached;
+        return (now >= endTime) || capReached || stateValid;
     }
 
     // Wei remaining until ICO is capped
@@ -250,15 +265,9 @@ contract ICOEvent is Owned {
     }
 
     // Shows if the base target cap has been reached
-    function minTargetReached() public constant returns (bool) {
-
-        return totalWeiContributed >= minTarget;
-    }
-
-    // Shows if the base target cap has been reached
     function baseTargetReached() public constant returns (bool) {
 
-        return totalWeiContributed >= baseTarget;
+        return totalWeiContributed >= baseTargetInWei;
     }
 
     // Shows if the cap has been reached
@@ -269,18 +278,16 @@ contract ICOEvent is Owned {
 
     /*  ----------------------------------------------------------------------------------------
 
-    Dev:    This section controls refunds and closing of the ICO. If the optional min target is not
-            reached then the ICO needs to refund deposits made.
+    Dev:    This section controls closing of the ICO. The state is set to closed so that the ICO
+            is shown as ended.
 
-            This is based on an intregation of functions from two open zeppelin contracts: RefundVault + RefundableCrowdsale
+            Based on the function from open zeppelin contracts: RefundVault + RefundableCrowdsale
 
     Ref:    https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/contracts/crowdsale/RefundableCrowdsale.sol
             https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/contracts/crowdsale/RefundVault.sol
     ---------------------------------------------------------------------------------------- */
 
     event Closed();
-    event RefundsEnabled();
-    event Refunded(address indexed beneficiary, uint256 weiAmount);
 
     // Set closed ICO and transfer balance to holding account
     function close() onlyOwner {
@@ -288,50 +295,6 @@ contract ICOEvent is Owned {
         state = State.Closed;
         Closed();
 
-        closeTransfer();
-    }
-
-    function closeTransfer() onlyOwner {
         holdingAccount.transfer(this.balance);
-    }
-
-    // Close with partial transfer
-    function closePartial(uint256 _value) onlyOwner {
-        require(state==State.Active);
-        state = State.Closed;
-        Closed();
-        holdingAccount.transfer(_value);
-    }
-
-    /*  ----------------------------------------------------------------------------------------
-
-    Dev:    Owner can trigger the refund state in the ICO Controller. This will then stop any
-            further deposits being taken.
-
-    ---------------------------------------------------------------------------------------- */
-    function enableRefunds() onlyOwner {
-        require(state == State.Active);
-        state = State.Refunding;
-        RefundsEnabled();
-    }
-
-    /*  ----------------------------------------------------------------------------------------
-
-    Dev:    Once the owner has triggered the refund state, depositors can then request their
-            refund claim
-
-    Req:    Refunds can only be triggered if the base target is not reached
-
-    ---------------------------------------------------------------------------------------- */
-    function refund() {
-        require(!minTargetReached());                           // Base target not reached
-        require(state == State.Refunding);                      // Owner has allowed refunds
-
-        address refundAccount = msg.sender;
-
-        uint256 depositedValue = deposited[refundAccount];
-        deposited[refundAccount] = 0;                           // Owner has been refunded
-        refundAccount.transfer(depositedValue);
-        Refunded(refundAccount, depositedValue);
     }
 }
