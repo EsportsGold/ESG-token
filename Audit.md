@@ -18,6 +18,10 @@ NB - I have not done a full, from-scratch, re-audit of the modified contracts - 
 
 ### Summary
 
+Given the previously identified issues have now all been remediated I am comfortable that the contracts perform as advertised with no security issues that I could identify.
+
+### Commentary
+
 This is an update to a previous audit:  
 https://github.com/adamdossa/ESG-token/blob/master/Audit.md
 
@@ -36,7 +40,7 @@ If I resolve the above issues, the code compiles. I have added these changes, al
 I have verified that with the above fixes, the following test cases all run successfully:  
 `truffle test test/ESGToken.js`
 `truffle test test/ICOEvent.js`
-`test test/TokenTimelock.js`
+`truffle test test/TokenTimelock.js`
 
 I have also verified that the deployment script runs successfully.
 
@@ -58,7 +62,7 @@ I have checked that the issues identified in the previous audit have been remedi
 
 ### ESGAssetHolder.sol and TokenTimelock.sol
 
-No issues were found with these contracts. Since there is no deployment script it isn't possible to check that they are deployed and initialised correctly.
+No issues were found with these contracts.
 
 ### SafeMath.sol and Owned.sol
 
