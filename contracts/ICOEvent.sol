@@ -39,7 +39,7 @@ contract ICOEvent is Owned {
     uint256 public baseTargetInWei;                     // Target for bonus rate of tokens
     uint256 public icoCapInWei;                         // Max cap of the ICO in Wei
 
-    event logPurchase (address indexed purchaser, uint value);
+    event logPurchase (address indexed purchaser, uint value, uint256 tokens);
 
     enum State { Active, Refunding, Closed }            // Allows control of the ICO state
     State public state;
@@ -90,7 +90,7 @@ contract ICOEvent is Owned {
         baseTargetInWei = SafeMath.safeMul(_baseTarget, weiEtherConversion);
         icoCapInWei = SafeMath.safeMul(_cap, weiEtherConversion);
         holdingAccount = _holdingAccount;
-        duration = _duration * 1 days;
+        duration = SafeMath.safeMul(_duration, 1 days);
         parametersSet = true;
     }
 
@@ -204,7 +204,7 @@ contract ICOEvent is Owned {
         tokensIssued[_for] = SafeMath.safeAdd(tokensIssued[_for], tokensToMint);            // Log tokens issued
 
         token.mint(_for, tokensToMint);                                                     // Mint tokens from Token Mint
-        logPurchase(_for, msg.value);
+        logPurchase(_for, msg.value, tokensToMint);
     }
 
     /*  ----------------------------------------------------------------------------------------
@@ -291,6 +291,7 @@ contract ICOEvent is Owned {
 
     // Set closed ICO and transfer balance to holding account
     function close() onlyOwner {
+        require((now >= endTime) || (totalWeiContributed >= icoCapInWei));
         require(state==State.Active);
         state = State.Closed;
         Closed();
