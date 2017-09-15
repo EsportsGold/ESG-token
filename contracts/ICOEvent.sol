@@ -113,6 +113,13 @@ contract ICOEvent is Owned {
         startTime = now;
         endTime = SafeMath.safeAdd(startTime, duration);
     }
+    
+   function ICO_start_future(uint _startTime) onlyOwner {
+        assert(eventConfigured());
+        require(_startTime > now);
+        startTime = _startTime;
+        endTime = SafeMath.safeAdd(startTime, duration);
+    }
 
     function ICO_token_supplyCap() onlyOwner {
         require(token.parametersAreSet());                          // Ensure parameters are set in the token
