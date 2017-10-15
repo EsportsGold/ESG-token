@@ -10,6 +10,7 @@ ESG is undertaking an ICO of the ESG Token ("ESG TKN") to integrate and operate 
 
 The code is currently live and can be viewed at the following:
 ICOEvent code: https://etherscan.io/address/0x3744942C42451c2B42F43a51eE9bB6c6ad0FDc86#code
+
 The tokens locked for 2 years can be viewed at: https://etherscan.io/address/0xf8bB28EC085F5d7159C2DF0fCb55570cf1520359#code
 
 ## Entitlements of the ESG Token
