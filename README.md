@@ -13,6 +13,9 @@ ICOEvent code: https://etherscan.io/address/0x3744942C42451c2B42F43a51eE9bB6c6ad
 
 The tokens locked for 2 years can be viewed at: https://etherscan.io/address/0xf8bB28EC085F5d7159C2DF0fCb55570cf1520359#code
 
+To ensure syncing/links with Etherscan, the ESG token is at https://etherscan.io/token/0x67ccdc29e59e1c65dee7283fa6c8b5bb4ce5cb8d
+The individuals who contributed before this change are receiving updated ESG tokens. All ESG tokens issued are assured by the company.
+
 ## Entitlements of the ESG Token
 ESG is creating the ESG Token (“ESG TKN”) for a limited time and fixed quantity to be confirmed on the first day of the ICO, with a strike price reflecting the Ethereum price at that date.
 
