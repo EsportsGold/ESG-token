@@ -21,7 +21,7 @@ contract ESGToken is Owned {
     string public name = "ESG Token";               // Name of token
     string public symbol = "ESG";                   // Token symbol
     uint256 public decimals = 3;                    // Decimals for the token
-    uint256 public currentSupply;                   // Current supply of tokens
+    uint256 public totalSupply;                   // Current supply of tokens
     uint256 public supplyCap;                       // Hard cap on supply of tokens
     address public ICOcontroller;                   // Controlling contract from ICO
     address public timelockTokens;                  // Address for locked management tokens
@@ -58,7 +58,7 @@ contract ESGToken is Owned {
 
     ---------------------------------------------------------------------------------------- */
     function ESGToken() {
-        currentSupply = 0;                      // Starting supply is zero
+        totalSupply = 0;                      // Starting supply is zero
         supplyCap = 0;                          // Hard cap supply in Tokens set by ICO
         tokenParametersSet = false;             // Ensure parameters are set
         controllerSet = false;                  // Ensure controller is set
@@ -157,9 +157,10 @@ contract ESGToken is Owned {
         assert(supplyCap > 0 && amount > 0 && SafeMath.safeAdd(currentSupply, amount) <= supplyCap);
         
         balanceOf[_address] = SafeMath.safeAdd(balanceOf[_address], amount);    // Add tokens to address
-        currentSupply = SafeMath.safeAdd(currentSupply, amount);                // Add to supply
+        totalSupply = SafeMath.safeAdd(totalSupply, amount);                // Add to supply
         
         Mint(_address, amount);
+        Transfer(0x0, _address, amount);
     }
     
     /*  ----------------------------------------------------------------------------------------
@@ -299,7 +300,7 @@ contract ESGToken is Owned {
             Update sender's balance of tokens
         */
         balanceOf[msg.sender] = SafeMath.safeSub(balanceOf[msg.sender], _amount);
-        currentSupply = SafeMath.safeSub(currentSupply, _amount);
+        totalSupply = SafeMath.safeSub(totalSupply, _amount);
 
         // Call burn function
         result = esgAssetHolder.burn(msg.sender, _amount);
